@@ -2,6 +2,18 @@
 
 NEATDriving is a Python project that employs the NEAT algorithm to train virtual cars to navigate a 2D track autonomously. Utilizing Pygame for rendering and NEAT-Python for neuroevolution, the simulation evolves neural networks that control the steering and speed of cars based on sensor inputs.
 
+### Visualization Demo
+
+Below is a visual overview of the training process (just the first three generations) and results (the best genome after 500 generations):
+
+<img src="media/train.gif" alt="NEAT Training" width="500" height="400"> <img src="media/track1.gif" alt="NEAT Training" width="500" height="400">
+
+The real test of performance comes when evaluating the best-performing genome on an entirely new, unseen track. Here’s how well the model generalizes:
+
+<p align="center">
+<img src="media/track2.gif" alt="NEAT Training" width="800" height="500">
+</p>
+
 ### Features
 
 - Neuroevolution with NEAT: Evolves neural networks to control car behavior without predefined rules
