@@ -11,6 +11,20 @@ NEATDriving is a Python project that employs the NEAT algorithm to train virtual
 - Fitness Evaluation: Cars are rewarded based on the distance traveled without collisions
 - Multiple Configurations: Includes different configurations for experimentation, such as `config.ini` and `config_nospeed.ini`
 
+### Requirements
+
+To install the packages, use:
+```bash
+pip install pygame neat-python
+```
+
+*Note*: the suggested use is through a virtual environment, using python3.11 which is the last version of python supported by NEAT-Python (https://neat-python.readthedocs.io/en/latest/):
+```bash
+python3.11 -m venv myenv
+myenv/bin/activate # Mac & Linux
+myenv/Scripts/activate # Windows
+```
+
 ### Usage
 
 1. **Prepare Assets:**
@@ -25,10 +39,7 @@ To start training the neural networks:
 python main.py
 ```
 
-For a configuration without speed control:
-```bash
-python main_nospeed.py
-```
+*Note*: for a version without speed control, use `main_nospeed.py`.
 
 3. **View Results:**
 After training, the best-performing genome is saved as `winner.pkl` (which can be already found in the repo). To visualize its performance use:
