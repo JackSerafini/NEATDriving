@@ -5,26 +5,28 @@ import pickle
 import pygame
 import neat
 
-MAX_FRAMES = 2000
+MAX_FRAMES = 1000
 WIDTH, HEIGHT = 1920, 1080
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Car Racing NEAT")
 
-TRACK_IMG = os.path.join('assets', 'track1.png')
+TRACK_IMG = os.path.join('assets', 'track1.png') # Track 1
+# TRACK_IMG = os.path.join('assets', 'track2.png') # Track 2
 CAR_IMG = os.path.join('assets', 'bluecar.png')
 
 CAR_X, CAR_Y = 60, 30 # Track 1
-# CAR_X, CAR_Y, ANGLE = 80, 40, 0 # Track 2
-POS_X, POS_Y, ANGLE = 960, 835, 180 # Track 1, for track2, use ...
-MAX_STALL = 120
-MOVEMENT_THRESHOLD = 2.0
+# CAR_X, CAR_Y = 80, 40 # Track 2
+POS_X, POS_Y, ANGLE = 960, 835, 180 # Track 1
+# POS_X, POS_Y, ANGLE = 960, 140, 0 # Track 2
 TURN_RATE = 5
+MAX_SPEED = 10
+MIN_SPEED = 2
 ACCEL_RATE = 0.5
 
 COLLISION_COLOR = pygame.Color(0, 0, 0)
 
 class Car:
-    def __init__(self, track_mask):
+    def __init__(self, track_mask: pygame.mask.Mask):
         self.car_sprite = pygame.image.load(CAR_IMG).convert_alpha()
         self.car_sprite = pygame.transform.smoothscale(self.car_sprite, (CAR_X, CAR_Y))
         self.vehicle = self.car_sprite
@@ -36,16 +38,10 @@ class Car:
         self.y = POS_Y + CAR_Y / 2
         self.rect = self.vehicle.get_rect(center=(self.x, self.y))
         self.angle = ANGLE
-        self.speed = 0
+        self.speed = MIN_SPEED
         self.alive = True
 
         self.distance = 0
-        self.time = 0
-
-        self.prev_x, self.prev_y = self.x, self.y
-        self.stall = 0
-
-        # self.sensors = []
 
     def drive(self):
         rad = math.radians(self.angle)
@@ -60,24 +56,11 @@ class Car:
         self.mask = pygame.mask.from_surface(self.vehicle)
 
     def collision(self):
-        # coll_point_l = self.rect.topleft
-        # coll_point_r = self.rect.topright
-
-        # if SCREEN.get_at(coll_point_l) == COLLISION_COLOR:
-        #     self.alive = False
-        #     pygame.draw.circle(SCREEN, (255, 0, 0), coll_point_l, 4)
-        # elif SCREEN.get_at(coll_point_r) == COLLISION_COLOR:
-        #     self.alive = False
-        #     pygame.draw.circle(SCREEN, (255, 0, 0), coll_point_r, 4)
         offset_x = int(self.rect.left)
         offset_y = int(self.rect.top)
         overlap_pos = self.track_mask.overlap(self.mask, (offset_x, offset_y))
         if overlap_pos:
             self.alive = False
-            collision_world_x = offset_x + overlap_pos[0]
-            collision_world_y = offset_y + overlap_pos[1]
-            pygame.draw.circle(SCREEN, (255, 0, 0), 
-                               (collision_world_x, collision_world_y), 5)
 
     def update(self):
         self.drive()
@@ -91,7 +74,6 @@ class Car:
         step = 5
 
         cx, cy = self.rect.center
-
         for ray in angles:
             length = 0
             ang = math.radians(self.angle + ray)
@@ -123,7 +105,6 @@ def eval_genomes(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
         cars.append(Car(track_mask))
-        # cars.append(pygame.sprite.GroupSingle(Car()))  # Create a new car sprite
         genome.fitness = 0
         ge.append(genome)
 
@@ -146,21 +127,11 @@ def eval_genomes(genomes, config):
             outputs = nets[i].activate(inputs)
             steer = outputs[0] * 2 - 1
             car.angle += steer * TURN_RATE
-            # throttle = outputs[1] * ACCEL_RATE
-            car.speed += outputs[1]
+            throttle = (outputs[1] * 2 - 1) * ACCEL_RATE
+            update_speed = max(MIN_SPEED, min(car.speed + throttle, MAX_SPEED))
+            car.speed = update_speed
             car.update()
             ge[i].fitness = car.distance
-
-            dx = car.x - car.prev_x
-            dy = car.y - car.prev_y
-            moved = math.hypot(dx, dy)
-            if moved > MOVEMENT_THRESHOLD:
-                car.prev_x, car.prev_y = car.x, car.y
-                car.stall = 0
-            else:
-                car.stall += 1
-                if car.stall >= MAX_STALL:
-                    car.alive = False
 
             SCREEN.blit(car.vehicle, car.rect)
         
@@ -169,7 +140,7 @@ def eval_genomes(genomes, config):
         frame += 1
 
 
-def run(config_path):
+def run(config_path: str):
     config = neat.Config(
         neat.DefaultGenome, neat.DefaultReproduction,
         neat.DefaultSpeciesSet, neat.DefaultStagnation,

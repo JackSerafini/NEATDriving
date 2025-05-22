@@ -177,5 +177,3 @@ cython_debug/
 myenv/
 # Test
 prova.py
-# Winners (I will add only the best)
-*.pkl

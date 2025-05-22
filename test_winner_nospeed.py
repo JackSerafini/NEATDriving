@@ -4,7 +4,7 @@ import pickle
 import pygame
 import neat
 
-from main import Car, TRACK_IMG, COLLISION_COLOR, WIDTH, HEIGHT, TURN_RATE, ACCEL_RATE, MAX_SPEED, MIN_SPEED
+from main_nospeed import Car, TRACK_IMG, COLLISION_COLOR, WIDTH, HEIGHT, TURN_RATE
 
 def main(config_path: str, winner_path: str):
     config = neat.Config(
@@ -42,9 +42,6 @@ def main(config_path: str, winner_path: str):
         outputs = net.activate(inputs)
         steer = outputs[0] * 2 - 1
         car.angle += steer * TURN_RATE
-        throttle = (outputs[1] * 2 - 1) * ACCEL_RATE
-        update_speed = max(MIN_SPEED, min(car.speed + throttle, MAX_SPEED))
-        car.speed = update_speed
         car.update()
         screen.blit(car.vehicle, car.rect)
 
@@ -55,6 +52,6 @@ def main(config_path: str, winner_path: str):
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
-    config_path  = os.path.join(local_dir, 'config.ini')
-    winner_path = os.path.join(local_dir, 'winner.pkl')
+    config_path  = os.path.join(local_dir, 'config_nospeed.ini')
+    winner_path = os.path.join(local_dir, 'winner_nospeed.pkl')
     main(config_path, winner_path)
