@@ -172,3 +172,10 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Env
+myenv/
+# Test
+prova.py
+# Winners (I will add only the best)
+*.pkl
