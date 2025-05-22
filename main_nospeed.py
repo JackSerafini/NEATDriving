@@ -40,7 +40,6 @@ class Car:
         self.alive = True
 
         self.distance = 0
-        self.time = 0
 
         self.prev_x, self.prev_y = self.x, self.y
         self.stall = 0
@@ -112,7 +111,6 @@ def eval_genomes(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(genome, config)
         nets.append(net)
         cars.append(Car(track_mask))
-        # cars.append(pygame.sprite.GroupSingle(Car()))  # Create a new car sprite
         genome.fitness = 0
         ge.append(genome)
 
@@ -132,11 +130,9 @@ def eval_genomes(genomes, config):
                 continue
 
             inputs = car.get_data()
-            outputs = nets[i].activate(inputs)
-            steer = outputs[0] * 2 - 1
+            output = nets[i].activate(inputs)
+            steer = output[0] * 2 - 1
             car.angle += steer * TURN_RATE
-            # throttle = outputs[1] * ACCEL_RATE
-            car.speed += outputs[1]
             car.update()
             ge[i].fitness = car.distance
 
@@ -178,5 +174,5 @@ def run(config_path):
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config.ini')
+    config_path = os.path.join(local_dir, 'config_nospeed.ini')
     run(config_path)
